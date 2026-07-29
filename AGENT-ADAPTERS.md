@@ -28,6 +28,11 @@ a fresh session that sees only `{goal, spec, artifact, invariants}` and none of 
 agent above can do this; only the spawning syntax differs. If your agent truly cannot spawn a second
 context, run L4 as a clean new session after `/clear` and feed it `KICKOFF.md` + the diff.
 
+## L4 optional explain-diff
+When `EXPLAIN_DIFF` is `on` in `LOOPS.md` (scaffold default: **off**), after verifier `APPROVE` invoke
+`explain-diff-html` before the 3 quiz-me questions. Output: `.genesis/explanations/YYYY-MM-DD-explanation-<milestone>.html`.
+Failure is logged and skipped — it does not block the milestone.
+
 ## What is NOT portable (and we don't rely on)
 - Agent-specific memory features — we use `.genesis/` on disk instead, so state survives any agent.
 - Provider-specific tool schemas — skills are written as plain instructions, not tool bindings.

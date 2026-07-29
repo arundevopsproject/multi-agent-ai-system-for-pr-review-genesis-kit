@@ -37,7 +37,8 @@ decisions/, checkpoints/CURRENT.md, wiki/}`. scaffold.sh will ask you for:
   - router skill name
   - token budget per milestone
   - max loop iterations per milestone
-Press Enter to accept defaults. These fill `{{CHEAP_MODEL}}`, `{{FLAGSHIP_MODEL}}`, etc. everywhere
+  - L4 explain-diff after APPROVE (`on` or `off`, default **off**)
+Press Enter to accept defaults. These fill `{{CHEAP_MODEL}}`, `{{FLAGSHIP_MODEL}}`, `{{EXPLAIN_DIFF}}`, etc. everywhere
 in the spine so no placeholder tokens survive into your working files.
 
 ## G2 — Build the context graph

@@ -12,7 +12,7 @@ metadata:
   hermes:
     tags: [genesis, setup, loops, ai-native, orchestration, project-kickoff]
     category: swe-foundations
-    related_skills: [agentic-swe-master, blueprint, detective, verify, scout]
+    related_skills: [agentic-swe-master, blueprint, detective, verify, scout, explain-diff-html]
 trigger_conditions:
   - "Use this when starting a new production-grade or AI-native project from scratch"
   - "Use this when adopting an unfamiliar repo and you need a structured state spine before working"
@@ -55,4 +55,5 @@ and loop primitive through `AGENT-ADAPTERS.md`.
 - **Skipping G0 cognitive design.** Fix — write the cognitive job first; everything downstream routes from it.
 - **Inventing milestones without demo commands.** Fix — the demo command is the milestone's contract.
 - **Letting the maker grade its own work.** Fix — L4 VERIFY is always a separate context/model.
+- **Skipping explain-diff failure blocking milestone.** Fix — explain-diff is optional; failures are logged and quiz-me still runs.
 - **Editing DONE.html mid-loop.** Fix — DONE.html is locked; change scope via the user, not silently.
