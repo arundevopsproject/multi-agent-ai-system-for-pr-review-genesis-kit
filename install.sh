@@ -33,11 +33,14 @@ if [[ ${#TARGETS[@]} -eq 0 ]]; then
   TARGETS+=("$HOME/.claude/skills")
 fi
 
-# ── 3. Install the genesis skill into each agent ────────────────────────────────────────────────
+# ── 3. Install kit skills into each agent ─────────────────────────────────────────────────────
 for dir in "${TARGETS[@]}"; do
   mkdir -p "$dir/genesis"
   cp "$KIT_DIR/skills/genesis/SKILL.md" "$dir/genesis/SKILL.md"
   echo "✅ genesis skill → $dir/genesis"
+  mkdir -p "$dir/explain-diff-html"
+  cp "$KIT_DIR/skills/explain-diff-html/SKILL.md" "$dir/explain-diff-html/SKILL.md"
+  echo "✅ explain-diff-html skill → $dir/explain-diff-html"
 done
 
 # ── 4. Export the kit root so scaffold.sh / graphizer are findable ──────────────────────────────
@@ -54,7 +57,7 @@ Start a project in any agent:
   1.  cd <your-project>
   2.  "$KIT_DIR/tools/scaffold.sh" .
         ↳ will ask: cheap/driver model, flagship/checker model,
-          router skill, token budget, max loop iterations.
+          router skill, token budget, max loop iterations, explain-diff (default off).
           Press Enter to accept the defaults.
   3.  node "$KIT_DIR/tools/graphizer.mjs" . --write   # builds context-graph
   4.  invoke the 'genesis' skill and run G0–G6 (see .genesis/genesis.md)
@@ -63,7 +66,8 @@ Start a project in any agent:
     scaffold.sh . --cheap-model claude-haiku-4-5 \\
                   --flagship-model claude-opus-4-5 \\
                   --router-skill coding-orchestrator \\
-                  --budget 50000 --max-iters 10
+                  --budget 50000 --max-iters 10 \\
+                  --explain-diff off
 
 Restart your shell (or: source $SHELL_RC) so GENESIS_KIT_ROOT is set.
 ────────────────────────────────────────────────────────

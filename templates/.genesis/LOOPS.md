@@ -70,6 +70,7 @@ Skipping G0 = wasted tokens and a duplicate implementation that drifts.
   `detective` (debug), `verify` (check output), `blueprint` (design before build),
   `scout` (explore options), `council`/`mirror` (adversarial self-review),
   `ghost` (shadow/canary), `foresight` (predict failures).
+- **Kit skills** (from genesis-kit `install.sh`): `genesis`, `explain-diff-html` (optional L4 step when `EXPLAIN_DIFF` is `on`; default off at scaffold).
 - Repo conventions live in `AGENTS.md`/`CLAUDE.md` and `.genesis/wiki/` — every loop reads them at start.
 
 ---
@@ -249,7 +250,7 @@ return wiki_pages_created to parent
 - **Fresh context.** Checker sees ONLY: goal + success criteria + artifact (diff or command output). NOT the build trail.
 - **Context-graph aware:** checker is also handed the affected `context-graph.json` invariants and asked "does this change violate any downstream invariant?"
 
-**Required skills:** `agentic-swe-master`, `verify` (or `requesting-code-review`).
+**Required skills:** `agentic-swe-master`, `verify` (or `requesting-code-review`). When `EXPLAIN_DIFF` is `on`: also `explain-diff-html` after APPROVE.
 
 **Pseudocode:**
 ```
@@ -257,7 +258,28 @@ load_skills([agentic-swe-master, verify])
 context = { goal, spec_excerpt, artifact, invariants_at_risk }   # NO build_trail
 verdict = checker_model.judge(context)     # APPROVE | REJECT | UNCERTAIN
 checkpoint_append(verdict, reasoning)
-APPROVE → PASS; REJECT → FAIL_WITH(reasoning); UNCERTAIN → surface_to_user
+APPROVE → continue below; REJECT → FAIL_WITH(reasoning); UNCERTAIN → surface_to_user
+```
+
+**Explain-diff gate (optional — `EXPLAIN_DIFF` is `{{EXPLAIN_DIFF}}` in this project):**
+Runs on APPROVE, **before** the quiz-me gate. Does **not** block the milestone.
+
+Context policy differs from the judge step: the explain step **may read the repo** for surrounding code, but still **not** the maker's build trail or chat history.
+
+```
+if EXPLAIN_DIFF == on:
+  load_skills([explain-diff-html])
+  try:
+    html_path = explain_diff_html(
+      artifact,
+      milestone_id,
+      output_dir=.genesis/explanations/
+    )
+    checkpoint_append("explain-diff", html_path)
+    surface_to_human(html_path)            # posting path is enough; no ack required
+  catch error:
+    checkpoint_append("explain-diff", "skipped — generation failed: <reason>")
+    # continue to quiz-me — failure does not block milestone
 ```
 
 **Quiz-me gate (runs on APPROVE before milestone is marked done):**

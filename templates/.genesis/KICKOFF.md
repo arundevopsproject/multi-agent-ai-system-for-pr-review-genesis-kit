@@ -27,6 +27,7 @@ Then:
    G3 Cost, G4 Quality, G5 Verify). Gates are COMPUTED (run the command, paste exit code), not narrated.
 4. Checkpoint every iteration to .genesis/checkpoints/<milestone-id>.md.
 5. Spawn L2 DEBUG / L3 RESEARCH as needed. Exit through L4 VERIFY (separate model, fresh context).
+   If EXPLAIN_DIFF is on: after APPROVE, run explain-diff-html (.genesis/explanations/) then quiz-me.
 6. On milestone done: update CURRENT.md, append a row to implementation-notes.html "what's live",
    append progress to PLAN.md.
 

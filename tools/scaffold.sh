@@ -7,6 +7,7 @@
 #     --router-skill   <name> e.g. coding-orchestrator
 #     --budget         <n>    token budget per milestone, e.g. 50000
 #     --max-iters      <n>    max loop iterations per milestone, e.g. 10
+#     --explain-diff   on|off  L4 explain-diff-html step after APPROVE (default: off)
 set -euo pipefail
 
 KIT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -19,6 +20,7 @@ FLAGSHIP_MODEL=""
 ROUTER_SKILL=""
 MILESTONE_BUDGET=""
 MAX_ITERS=""
+EXPLAIN_DIFF=""
 
 shift 2 2>/dev/null || true
 while [[ $# -gt 0 ]]; do
@@ -28,6 +30,7 @@ while [[ $# -gt 0 ]]; do
     --router-skill)   ROUTER_SKILL="$2";   shift 2 ;;
     --budget)         MILESTONE_BUDGET="$2"; shift 2 ;;
     --max-iters)      MAX_ITERS="$2";      shift 2 ;;
+    --explain-diff)   EXPLAIN_DIFF="$2";   shift 2 ;;
     *) echo "unknown flag: $1"; exit 1 ;;
   esac
 done
@@ -67,12 +70,20 @@ if [[ -z "$MAX_ITERS" ]]; then
   MAX_ITERS="${_in:-10}"
 fi
 
+if [[ -z "$EXPLAIN_DIFF" ]]; then
+  echo -n "  L4 explain-diff after APPROVE? (on/off, default: off) → "; read -r _in
+  EXPLAIN_DIFF="${_in:-off}"
+fi
+EXPLAIN_DIFF="$(echo "$EXPLAIN_DIFF" | tr '[:upper:]' '[:lower:]')"
+[[ "$EXPLAIN_DIFF" != "on" ]] && EXPLAIN_DIFF="off"
+
 echo ""
 echo "  cheap_model      = $CHEAP_MODEL"
 echo "  flagship_model   = $FLAGSHIP_MODEL"
 echo "  router_skill     = $ROUTER_SKILL"
 echo "  milestone_budget = $MILESTONE_BUDGET tokens"
 echo "  max_iters        = $MAX_ITERS"
+echo "  explain_diff     = $EXPLAIN_DIFF"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
@@ -105,7 +116,8 @@ find "$DEST" -type f \( -name '*.md' -o -name '*.html' -o -name '*.json' \) -pri
       -e "s/{{DEBUG_BUDGET}}/20000/g" \
       -e "s/{{RESEARCH_MAX_ITERS}}/5/g" \
       -e "s/{{RESEARCH_BUDGET}}/20000/g" \
-      -e "s/{{VERIFY_BUDGET}}/10000/g"
+      -e "s/{{VERIFY_BUDGET}}/10000/g" \
+      -e "s/{{EXPLAIN_DIFF}}/$(_esc "$EXPLAIN_DIFF")/g"
 find "$DEST" -name '*.bak' -delete
 
 echo "✅ scaffolded $DEST"

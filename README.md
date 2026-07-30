@@ -12,6 +12,7 @@ This sits on top of two libraries you already have:
 |---|---|---|
 | **Knowledge graph** | `agentic-swe-kit` | The 20-phase `agentic-swe-master` orchestrator + 7 domain skills + concept wiki. "What's the correct engineering move." Installed globally. |
 | **Cognitive skills** | `skills-directory` | `detective`, `verify`, `scout`, `blueprint`, `council`, `ghost`… the composable verbs a loop calls. |
+| **Kit skills** | **this kit** | `genesis`, `explain-diff-html` (optional L4 teaching step). Installed by `install.sh`. |
 | **Per-project spine** | **this kit** | The `.genesis/` directory the genesis ritual creates fresh in each project, and the loops that run it. |
 
 ---
@@ -72,6 +73,7 @@ Verify the install — both must succeed:
     ls "$GENESIS_KIT_ROOT/tools"        # must show scaffold.sh and graphizer.mjs
 Confirm the genesis skill landed in my agent (show whichever exists):
     ls ~/.claude/skills/genesis 2>/dev/null || ls ~/.codex/skills/genesis 2>/dev/null || ls ~/.hermes/skills/genesis 2>/dev/null
+    ls ~/.claude/skills/explain-diff-html 2>/dev/null || ls ~/.codex/skills/explain-diff-html 2>/dev/null || ls ~/.hermes/skills/explain-diff-html 2>/dev/null
 
 ────────────────────────────────────────
 STEP 4 — Ask me about my project, then scaffold it
@@ -116,7 +118,8 @@ When the checklist is all-true, print a short "You're ready" summary and tell me
      G4 Quality, G5 Verify) — gates are computed (run the command, paste the
      result), never narrated.
   4. Run L4 VERIFY as a SEPARATE session/model — the maker never grades itself.
-  5. To resume later in a cold session, paste .genesis/KICKOFF.md.
+  5. If EXPLAIN_DIFF is on: after APPROVE, open the HTML in .genesis/explanations/ then answer 3 quiz-me questions.
+  6. To resume later in a cold session, paste .genesis/KICKOFF.md.
 
 RULES THE WHOLE TIME: never overwrite an existing .genesis/. Gates are computed,
 not narrated. Never mark a milestone done without a separate L4 VERIFY approval.
@@ -130,8 +133,8 @@ Never edit DONE.html or PLAN.md without asking me first.
 ```bash
 cd <your-project>
 $GENESIS_KIT_ROOT/tools/scaffold.sh .
-# ↳ prompts for cheap model, flagship model, router skill, budget, max iters
-# press Enter to accept defaults (haiku driver / opus checker / coding-orchestrator)
+# ↳ prompts for cheap model, flagship model, router skill, budget, max iters, explain-diff (default off)
+# press Enter to accept defaults (haiku driver / opus checker / coding-orchestrator / explain-diff off)
 node $GENESIS_KIT_ROOT/tools/graphizer.mjs . --write   # 2. build context-graph.json
 # 3. in your agent: invoke the `genesis` skill, run G0–G6 (see .genesis/genesis.md)
 ```
@@ -174,10 +177,18 @@ asks you 3 targeted questions: one design decision, one edge case, one change im
 If you can't answer → verdict downgrades to UNCERTAIN, milestone stays open. No
 more rubber-stamp "looks good" merges.
 
+### Explain-diff on L4 VERIFY (P4a, optional)
+When enabled at scaffold (`--explain-diff on`, default **off**), after APPROVE and
+**before** the 3 quiz-me questions, the verifier runs the `explain-diff-html` skill:
+a self-contained HTML page saved to `.genesis/explanations/YYYY-MM-DD-explanation-<milestone>.html`.
+Posting the path is enough — no read-ack required. Generation failure is logged and
+skipped; it does **not** block the milestone or the quiz-me gate.
+
 ### Model/config prompts in scaffold (P5)
 `scaffold.sh` now asks for cheap model, flagship model, router skill, token budget,
-and max loop iterations before laying the spine. Press Enter for defaults
-(`claude-haiku-4-5` driver / `claude-opus-4-5` checker / `coding-orchestrator`).
+max loop iterations, and explain-diff (`on`/`off`, default off) before laying the spine.
+Press Enter for defaults
+(`claude-haiku-4-5` driver / `claude-opus-4-5` checker / `coding-orchestrator` / explain-diff off).
 No `{{CHEAP_MODEL}}` placeholders survive into your working files.
 
 ---
@@ -195,6 +206,7 @@ No `{{CHEAP_MODEL}}` placeholders survive into your working files.
   context-graph.json          nodes/edges/invariants — what breaks what (L4 checks invariants)
   decisions/                  ADRs — one file per irreversible decision
   checkpoints/CURRENT.md      where we are; per-milestone append-only logs
+  explanations/               L4 explain-diff HTML pages (when EXPLAIN_DIFF is on)
   wiki/                       project knowledge base (index.md, log.md, concepts/)
   AGENT-ADAPTERS.md           how skills/loops/subagents map to each agent
 ```
@@ -203,7 +215,8 @@ No `{{CHEAP_MODEL}}` placeholders survive into your working files.
 
 `read STATE → G0 (already built?) → pick milestone → load skills → L1 BUILD (5 gates each iter) →
 L2 DEBUG / L3 RESEARCH as needed → L4 VERIFY (separate model, fresh context, checks context-graph
-invariants) → update implementation-notes + CURRENT → repeat until DONE.html milestone all-checked.`
+invariants; optional explain-diff to .genesis/explanations/) → quiz-me (3 questions) →
+update implementation-notes + CURRENT → repeat until DONE.html milestone all-checked.`
 
 ## Why it's portable
 The spine is just markdown + JSON + HTML — every agent reads those. The only agent-specific things
