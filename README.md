@@ -1,3 +1,7 @@
+
+# System Design for AI Agents – Building a Multi-Agent PR Reviewer
+https://www.youtube.com/watch?v=iqRcGCah0Kw
+
 # genesis-kit
 
 > Turn any empty repo into a **loop-ready** repo — in any agent (Claude Code · Hermes · Codex · Cursor · …).
